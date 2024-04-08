@@ -1,4 +1,5 @@
-import 'package:cookbook/screens/home_screen.dart';
+import 'package:cookbook/models/login_image.dart';
+import 'package:cookbook/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,7 +16,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.cyan, useMaterial3: true),
       initialRoute: "/",
       routes: {
-        "/": (context) => const HomeScreen(),
+        "/": (context) => LoginScreen(
+            loginImage: LoginImage(imagePath: "assets/images/login_image.jpg")),
+        // "/": (context) => const HomeScreen(),
         // "/add_recipe": (context) => const AddRecipeScreen()
       },
     );
