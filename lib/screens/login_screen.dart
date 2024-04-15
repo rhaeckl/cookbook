@@ -1,5 +1,7 @@
 import 'package:cookbook/components/button.dart';
 import 'package:cookbook/models/login_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
@@ -7,8 +9,9 @@ import '../components/text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   final LoginImage loginImage;
+  final Function()? onTap;
 
-  const LoginScreen({super.key, required this.loginImage});
+  const LoginScreen({super.key, required this.loginImage, required this.onTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,6 +20,35 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
+
+  void showErrorMessage(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Colors.orangeAccent,
+              title: Center(
+                  child: Text(message,
+                      style: const TextStyle(color: Colors.white))));
+        });
+  }
+
+  void signUserIn() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const Center(child: CircularProgressIndicator());
+        });
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailTextController.value.text,
+          password: passwordTextController.value.text);
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      showErrorMessage(e.code);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,20 +128,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {},
                     ),
                     const SizedBox(height: 25),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "Du hast kein Konto?",
                           style: TextStyle(fontSize: 14, color: Colors.white),
                         ),
-                        SizedBox(width: 4),
-                        Text(
-                          "Registrieren",
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: widget.onTap,
+                          child: const Text(
+                            "Registrieren",
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue),
+                          ),
                         )
                       ],
                     )
