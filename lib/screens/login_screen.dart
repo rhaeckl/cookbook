@@ -46,7 +46,13 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      showErrorMessage(e.code);
+      if (e.code == 'user-not-found') {
+        wrongEmailMessage();
+      }
+      else if (e.code == 'wrong-password') {
+        wrongPasswordMessage();
+      }
+
     }
   }
 
@@ -58,101 +64,115 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Image.asset(widget.loginImage.imagePath),
             SafeArea(
-                child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Center(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 0),
-                    const Text(
-                      "Willkommen zurück!",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    MyTextField(
-                        controller: emailTextController,
-                        hintText: 'E-Mail Adresse',
-                        obscureText: false),
-                    const SizedBox(height: 10),
-                    MyTextField(
-                        controller: passwordTextController,
-                        hintText: 'Passwort',
-                        obscureText: true),
-                    const SizedBox(height: 5),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Center(
+                      child: Column(
                         children: [
-                          Text(
-                            'Passwort vergessen?',
-                            style: TextStyle(color: Colors.white),
+                          const SizedBox(height: 0),
+                          const Text(
+                            "Willkommen zurück!",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          MyTextField(
+                              controller: emailTextController,
+                              hintText: 'E-Mail Adresse',
+                              obscureText: false),
+                          const SizedBox(height: 10),
+                          MyTextField(
+                              controller: passwordTextController,
+                              hintText: 'Passwort',
+                              obscureText: true),
+                          const SizedBox(height: 5),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 25.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Passwort vergessen?',
+                                  style: TextStyle(color: Colors.white),
+                                )
+                              ],
+                            ),
+                          ),
+                          MyButton(onTap: signUserIn, text: 'Anmelden'),
+                          const SizedBox(height: 30),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 25.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Divider(
+                                      thickness: 0.5,
+                                      color: Colors.white,
+                                    )),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                  child: Text(
+                                    'Oder fortahren mit',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                Expanded(
+                                    child: Divider(
+                                      thickness: 0.5,
+                                      color: Colors.white,
+                                    ))
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          SignInButton(
+                            Buttons.Google,
+                            text: "Mit Google anmelden",
+                            onPressed: () {},
+                          ),
+                          const SizedBox(height: 25),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Du hast kein Konto?",
+                                style: TextStyle(fontSize: 14, color: Colors
+                                    .white),
+                              ),
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: widget.onTap,
+                                child: const Text(
+                                  "Registrieren",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue),
+                                ),
+                              )
+                            ],
                           )
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    MyButton(onTap: () {}, text: 'Anmelden'),
-                    const SizedBox(height: 30),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: Divider(
-                            thickness: 0.5,
-                            color: Colors.white,
-                          )),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text(
-                              'Oder fortahren mit',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          Expanded(
-                              child: Divider(
-                            thickness: 0.5,
-                            color: Colors.white,
-                          ))
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    SignInButton(
-                      Buttons.Google,
-                      text: "Mit Google anmelden",
-                      onPressed: () {},
-                    ),
-                    const SizedBox(height: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Du hast kein Konto?",
-                          style: TextStyle(fontSize: 14, color: Colors.white),
-                        ),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: widget.onTap,
-                          child: const Text(
-                            "Registrieren",
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ))
+                  ),
+                ))
           ],
         ));
+  }
+
+  void wrongEmailMessage() {
+    showDialog(context: context, builder: (context) {
+      return const AlertDialog(title: Text('Incorrect email'));
+    });
+  }
+
+  void wrongPasswordMessage() {
+    showDialog(context: context, builder: (context) {
+      return const AlertDialog(title: Text('Incorrect password'));
+    });
   }
 }
